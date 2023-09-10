@@ -1,0 +1,19 @@
+services:
+  server:
+    image: notes-server
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - 3000:3000
+  database:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=example
+    volumes:
+      - ./postgresdata/data:/var/lib/postgresql/data
