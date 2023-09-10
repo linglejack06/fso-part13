@@ -1,19 +1,28 @@
 services:
-  server:
-    image: notes-server
-    build:
-      context: .
-      dockerfile: dev.Dockerfile
-    volumes:
-      - ./:/usr/src/app
-    ports:
-      - 3000:3000
+  # server:
+  #   image: notes-server
+  #   build:
+  #     context: .
+  #     dockerfile: dev.Dockerfile
+  #   volumes:
+  #     - ./:/usr/src/app
+  #   environment:
+  #     - DATABASE_URL=postgres://postgres:example@localhost:5432/postgres
+  #   ports:
+  #     - 3000:3000
   database:
     image: postgres
     restart: always
     ports:
       - 5432:5432
     environment:
+      - POSTGRES_USER=dev
       - POSTGRES_PASSWORD=example
     volumes:
       - ./postgresdata/data:/var/lib/postgresql/data
+  admin:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    container_name: dev-admin
