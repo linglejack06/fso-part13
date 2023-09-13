@@ -1,0 +1,28 @@
+services:
+  blog-server:
+    image: blogs-server
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./:/usr/src/app
+    environment:
+      - DATABASE_URL=postgres://jack:sqlisbest@localhost:5432/postgres
+    ports:
+      - 3000:3000
+  blog-database:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=jack
+      - POSTGRES_PASSWORD=sqlisbest
+    volumes:
+      - ./postgresdata/data:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    container_name: dev-admin
