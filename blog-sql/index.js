@@ -4,17 +4,19 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 
-const sequelize = new Sequelize(process.env.DATABASE_URL);
+const sequelize = new Sequelize(
+  "postgres://jack:sqlisbest@localhost:5432/postgres"
+);
 
 app.get("/api/blogs", async (req, res) => {
   await sequelize.authenticate();
   const blogs = await sequelize.query("SELECT * FROM blogs", {
-    type: QueryTypes.SELECT
+    type: QueryTypes.SELECT,
   });
   res.send(blogs);
   sequelize.close();
-})
+});
 
 app.listen(3000, () => {
   console.log("RUNNING");
-})
+});
