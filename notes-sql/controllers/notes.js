@@ -1,5 +1,5 @@
 const notesRouter = require("express").Router();
-const { Note } = require("../models");
+const { Note, User } = require("../models");
 
 const noteFinder = async (req, res, next) => {
   req.note = await Note.findByPk(req.params.id);
@@ -11,8 +11,10 @@ notesRouter.get("/", async (req, res) => {
 });
 notesRouter.post("/", async (req, res) => {
   try {
+    const user = await User.findOne();
     console.log(req.body);
-    const note = await Note.create(req.body);
+    // sets foreign user key with userId
+    const note = await Note.create({ ...req.body, userId: user.id });
     res.json(note);
   } catch (error) {
     res.status(400).json({ error });

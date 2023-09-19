@@ -1,5 +1,5 @@
 const loginRouter = require("express").Router();
-// eslint-disable-next-line import/no-unresolved
+// eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies
 const jwt = require("jsonwebtoken");
 const { SECRET } = require("../util/config");
 const User = require("../models");

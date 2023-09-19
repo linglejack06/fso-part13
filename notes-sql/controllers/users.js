@@ -1,9 +1,14 @@
 const usersRouter = require("express").Router();
-const { User } = require("../models");
+const { User, Note } = require("../models");
 
 usersRouter.get("/", async (req, res) => {
   try {
-    const users = await User.findAll();
+    // creates join query
+    const users = await User.findAll({
+      include: {
+        model: Note,
+      },
+    });
     res.json(users);
   } catch (error) {
     res.status(400).send({ error });
