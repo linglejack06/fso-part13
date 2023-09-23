@@ -18,6 +18,11 @@ loginRouter.post("/", async (req, res) => {
         error: "Invalid username or password",
       });
     }
+    if (user.disabled) {
+      return res.status(401).json({
+        error: "Account disabled, Contact administration",
+      });
+    }
     const userForToken = {
       username: user.username,
       id: user.id,
@@ -28,6 +33,7 @@ loginRouter.post("/", async (req, res) => {
   } catch (error) {
     res.status(400).send({ error });
   }
+  return null;
 });
 
 module.exports = loginRouter;
