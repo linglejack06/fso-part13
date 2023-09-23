@@ -1,4 +1,5 @@
 const notesRouter = require("express").Router();
+const { Op } = require("sequelize");
 const { Note, User } = require("../models");
 
 const noteFinder = async (req, res, next) => {
@@ -6,7 +7,23 @@ const noteFinder = async (req, res, next) => {
   next();
 };
 notesRouter.get("/", async (req, res) => {
-  const notes = await Note.findAll();
+  const where = {};
+  if (req.query.important) {
+    where.important = req.query.important === "true";
+  }
+  if (req.query.search) {
+    where.content = {
+      [Op.substring]: req.query.search,
+    };
+  }
+  const notes = await Note.findAll({
+    attributes: { exclude: ["userId"] },
+    include: {
+      model: User,
+      attributes: ["name"],
+    },
+    where,
+  });
   res.json(notes);
 });
 notesRouter.post("/", async (req, res) => {
