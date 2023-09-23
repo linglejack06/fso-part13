@@ -1,5 +1,6 @@
 const usersRouter = require("express").Router();
 const { User, Note } = require("../models");
+const { tokenExtractor, isAdmin } = require("../util/middleware");
 
 usersRouter.get("/", async (req, res) => {
   try {
@@ -31,6 +32,25 @@ usersRouter.get("/:id", async (req, res) => {
   } catch (error) {
     res.status(400).send({ error });
   }
+});
+usersRouter.put("/:username", tokenExtractor, isAdmin, async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        username: req.params.username,
+      },
+    });
+    if (user) {
+      user.disabled = req.body.disabled;
+      await user.save();
+      res.json(user);
+    } else {
+      res.status(404).end();
+    }
+  } catch (error) {
+    return res.status(400).send(error.message);
+  }
+  return null;
 });
 
 module.exports = usersRouter;
