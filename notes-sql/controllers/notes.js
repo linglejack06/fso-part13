@@ -7,24 +7,28 @@ const noteFinder = async (req, res, next) => {
   next();
 };
 notesRouter.get("/", async (req, res) => {
-  const where = {};
-  if (req.query.important) {
-    where.important = req.query.important === "true";
+  try {
+    const where = {};
+    if (req.query.important) {
+      where.important = req.query.important === "true";
+    }
+    if (req.query.search) {
+      where.content = {
+        [Op.substring]: req.query.search,
+      };
+    }
+    const notes = await Note.findAll({
+      attributes: { exclude: ["userId"] },
+      include: {
+        model: User,
+        attributes: ["name"],
+      },
+      where,
+    });
+    res.json(notes);
+  } catch (error) {
+    res.status(400).send(error);
   }
-  if (req.query.search) {
-    where.content = {
-      [Op.substring]: req.query.search,
-    };
-  }
-  const notes = await Note.findAll({
-    attributes: { exclude: ["userId"] },
-    include: {
-      model: User,
-      attributes: ["name"],
-    },
-    where,
-  });
-  res.json(notes);
 });
 notesRouter.post("/", async (req, res) => {
   try {
@@ -34,7 +38,7 @@ notesRouter.post("/", async (req, res) => {
     const note = await Note.create({ ...req.body, userId: user.id });
     res.json(note);
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json(error.message);
   }
 });
 notesRouter.get("/:id", noteFinder, async (req, res) => {

@@ -3,9 +3,9 @@ const User = require("./user");
 // assigns foreign keys to each model for join queries
 User.hasMany(Note);
 Note.belongsTo(User);
-// causes data in database to match model
-Note.sync({ alter: true });
-User.sync({ alter: true });
+
+Note.sync();
+User.sync();
 
 module.exports = {
   Note,
