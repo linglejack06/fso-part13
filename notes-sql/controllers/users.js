@@ -38,16 +38,30 @@ usersRouter.post("/", async (req, res) => {
 usersRouter.get("/:id", async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id, {
-      include: {
-        model: Note,
-      },
+      include: [
+        {
+          model: Note,
+          attributes: { exclude: ["userId"] },
+        },
+        {
+          model: Note,
+          as: "marked_notes",
+          attributes: { exclude: ["userId"] },
+          through: {
+            attributes: [],
+          },
+        },
+        {
+          model: Team,
+          attributes: ["name", "id"],
+          through: {
+            attributes: [],
+          },
+        },
+      ],
     });
     if (user) {
-      return res.json({
-        username: user.username,
-        name: user.name,
-        note_count: user.notes.length,
-      });
+      return res.json(user);
     }
     return res.status(404).end();
   } catch (error) {
