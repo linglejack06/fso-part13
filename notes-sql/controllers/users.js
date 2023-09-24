@@ -37,11 +37,23 @@ usersRouter.post("/", async (req, res) => {
 
 usersRouter.get("/:id", async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
-    res.json(user);
+    const user = await User.findByPk(req.params.id, {
+      include: {
+        model: Note,
+      },
+    });
+    if (user) {
+      return res.json({
+        username: user.username,
+        name: user.name,
+        note_count: user.notes.length,
+      });
+    }
+    return res.status(404).end();
   } catch (error) {
     res.status(400).send({ error });
   }
+  return null;
 });
 usersRouter.put("/:username", tokenExtractor, isAdmin, async (req, res) => {
   try {
