@@ -1,14 +1,24 @@
 const usersRouter = require("express").Router();
-const { User, Note } = require("../models");
+const { User, Note, Team } = require("../models");
 const { tokenExtractor, isAdmin } = require("../util/middleware");
 
 usersRouter.get("/", async (req, res) => {
   try {
     // creates join query
     const users = await User.findAll({
-      include: {
-        model: Note,
-      },
+      include: [
+        {
+          model: Note,
+          attributes: { exclude: ["userId"] },
+        },
+        {
+          model: Team,
+          attributes: ["name", "id"],
+          through: {
+            attributes: [],
+          },
+        },
+      ],
     });
     res.json(users);
   } catch (error) {
