@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-const { jwt } = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 const { SECRET } = require("./config");
 
@@ -16,8 +16,8 @@ const tokenExtractor = async (req, res, next) => {
   if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
     try {
       req.decodedToken = jwt.verify(authorization.substring(7), SECRET);
-    } catch {
-      return res.status(401).json({ error: "token invalid" });
+    } catch (error) {
+      return res.status(401).json({ error: error.message });
     }
   } else {
     return res.status(401).json({ error: "token missing" });
