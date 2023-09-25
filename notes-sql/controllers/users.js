@@ -50,6 +50,10 @@ usersRouter.get("/:id", async (req, res) => {
           through: {
             attributes: [],
           },
+          include: {
+            model: User,
+            attributes: ["name"],
+          },
         },
         {
           model: Team,
