@@ -55,19 +55,19 @@ usersRouter.get("/:id", async (req, res) => {
             attributes: ["name"],
           },
         },
-        {
-          model: Team,
-          attributes: ["name", "id"],
-          through: {
-            attributes: [],
-          },
-        },
       ],
     });
-    if (user) {
-      return res.json(user);
+    if (!user) {
+      return res.status(404).end();
     }
-    return res.status(404).end();
+    let teams;
+    if (req.query.teams) {
+      teams = await user.getTeams({
+        attributes: ["name"],
+        joinTableAttributes: [],
+      });
+    }
+    res.json({ ...user.toJSON(), teams });
   } catch (error) {
     res.status(400).send({ error });
   }
