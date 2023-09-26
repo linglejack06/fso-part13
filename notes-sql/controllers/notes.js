@@ -1,7 +1,7 @@
 const notesRouter = require("express").Router();
-const jwt = require("jsonwebtoken");
+const { Op } = require("sequelize");
 const { Note, User } = require("../models");
-const { SECRET } = require("../util/config");
+const { tokenExtractor } = require("../util/middleware");
 
 const noteFinder = async (req, res, next) => {
   req.note = await Note.findByPk(req.params.id);
@@ -21,18 +21,36 @@ const tokenExtractor = (req, res, next) => {
   return next();
 };
 notesRouter.get("/", async (req, res) => {
-  const notes = await Note.findAll({
-    attributes: { exclude: ["userId"] },
-    include: {
-      model: User,
-      attributes: ["name"],
-    },
-  });
-  res.json(notes);
+  try {
+    const where = {};
+    if (req.query.important) {
+      where.important = req.query.important === "true";
+    }
+    if (req.query.search) {
+      where.content = {
+        [Op.substring]: req.query.search,
+      };
+    }
+    const notes = await Note.findAll({
+      attributes: { exclude: ["userId"] },
+      include: {
+        model: User,
+        attributes: ["name"],
+      },
+      where,
+    });
+    res.json(notes);
+  } catch (error) {
+    res.status(400).send(error);
+  }
 });
 notesRouter.post("/", tokenExtractor, async (req, res) => {
   try {
     const user = await User.findByPk(req.decodedToken.id);
+    if (!user) {
+      return res.status(401).json({ error: "invalid authentication token" });
+    }
+    console.log(req.body);
     // sets foreign user key with userId
     const note = await Note.create({
       ...req.body,
@@ -41,8 +59,9 @@ notesRouter.post("/", tokenExtractor, async (req, res) => {
     });
     res.json(note);
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json(error.message);
   }
+  return null;
 });
 notesRouter.get("/:id", noteFinder, async (req, res) => {
   if (req.note) {
