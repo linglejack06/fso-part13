@@ -1,7 +1,7 @@
 const router = require("express").Router();
 // eslint-disable-next-line import/no-extraneous-dependencies
 const bcrypt = require("bcrypt");
-const { User, Blog } = require("../models");
+const { User } = require("../models");
 const { SALT_ROUNDS } = require("../util/config");
 
 router.get("/", async (req, res, next) => {
@@ -37,7 +37,7 @@ router.put("/:username", async (req, res, next) => {
   }
   try {
     const user = await User.findOne({
-      where: { username: req.body.username },
+      where: { username: req.params.username },
     });
     if (!user) return next({ message: "Cannot find user with that username" });
     const pwCorrect = await bcrypt.compare(

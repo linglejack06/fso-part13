@@ -11,7 +11,7 @@ const findBlog = async (req, res, next) => {
   }
 };
 const handleError = async (error, req, res, next) => {
-  res.status(400).send({ error });
+  res.status(400).send(error.message);
   next();
 };
 
